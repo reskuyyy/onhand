@@ -43,9 +43,13 @@ async function cekOnhand() {
 
       const batch = plus.slice(i, i + BATCH_SIZE);
 
-      const res = await fetch(
-        `/api/onhand?storeId=${store}&plus=${batch.join(',')}`
-      );
+      const cleanPlus = encodeURIComponent(
+  batch.join(',')
+);
+
+const res = await fetch(
+  `/api/onhand?storeId=${store}&plus=${cleanPlus}`
+);
 
       const result = await res.json();
 
