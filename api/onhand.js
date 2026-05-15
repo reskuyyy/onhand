@@ -4,9 +4,7 @@ export default async function handler(req, res) {
 
   try {
 
-    const plusArray = decodeURIComponent(String(plus))
-  .replace(/\r/g, '')
-  .replace(/\n/g, ',')
+    const plusArray = String(plus)
   .split(',')
   .map(x => x.trim())
   .filter(x => x);
