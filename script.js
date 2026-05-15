@@ -30,7 +30,7 @@ async function loadData() {
     console.log(result);
 
     // ambil array dari response
-    const data = result.data || result || [];
+  const data = result || [];
 
     originalData = Array.isArray(data) ? data : [];
 
@@ -63,12 +63,13 @@ function renderTable(data) {
 
     const row = document.createElement('tr');
 
-    row.innerHTML = `
-      <td>${item.barcode || '-'}</td>
-      <td>${item.plu || '-'}</td>
-      <td>${item.descp || '-'}</td>
-      <td>${item.onhand || 0}</td>
-    `;
+   row.innerHTML = `
+  <td>${item.barcode || '-'}</td>
+  <td>${item.plu || '-'}</td>
+  <td>${item.descp || '-'}</td>
+  <td>${item.onhand || 0}</td>
+  <td>${item.rack || '-'}</td>
+`;
 
     tableBody.appendChild(row);
   });
