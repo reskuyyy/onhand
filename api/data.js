@@ -4,11 +4,9 @@ export default async function handler(req, res) {
 
   try {
 
-    // sementara hardcode rack dulu
-    const rack = 'AU1';
-
+    // API tanpa rack
     const url =
-      `https://app.alfastore.co.id/prd/api/cex/item_by_rak/?storeId=${storeId}&rack=${rack}`;
+      `https://app.alfastore.co.id/prd/api/cex/item_by_rak/?storeId=${storeId}`;
 
     const response = await fetch(url);
 
