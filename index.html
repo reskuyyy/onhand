@@ -298,6 +298,13 @@
 
 <script>
 
+function setPLU(data){
+
+  document.getElementById('pluInput').value =
+    data.replace(/,/g, '\n');
+
+}
+  
 const cekBtn = document.getElementById('cekBtn');
 const tableBody = document.getElementById('tableBody');
 const info = document.getElementById('info');
