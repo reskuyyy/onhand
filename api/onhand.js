@@ -5,10 +5,9 @@ export default async function handler(req, res) {
   try {
 
     const plusArray = String(plus)
-      .split(',')
-      .map(x => x.trim())
-      .filter(x => x);
-
+  .split(/[\n, ]+/)
+  .map(x => x.trim())
+  .filter(x => x);
     let allData = [];
 
     for (const plu of plusArray) {
