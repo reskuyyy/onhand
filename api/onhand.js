@@ -4,11 +4,10 @@ export default async function handler(req, res) {
 
   try {
 
-    const plusArray = String(plus)
+   const plusArray = String(plus)
   .split(',')
   .map(x => x.trim())
   .filter(x => x);
-
     for (const plu of plusArray) {
 
       try {
