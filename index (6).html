@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planogram Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#0d0d0d;--bg2:#141414;--bg3:#1a1a1a;--bg4:#222;
+  --border:#2a2a2a;--border2:#333;--text:#e8e8e8;--text2:#888;--text3:#555;
+  --accent:#ff4e1a;--accent2:#ff6b3d;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
+  --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+  --radius:8px;--radius-lg:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;}
+.top-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:56px;gap:12px;position:sticky;top:0;z-index:10;}
+.logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.logo-text{font-size:15px;font-weight:600;}
+.logo-sub{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.container{max-width:1100px;margin:0 auto;padding:24px;}
+.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;}
+.form-title{font-size:11px;font-family:var(--mono);color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;}
+.field label{display:block;font-size:11px;color:var(--text2);font-family:var(--mono);margin-bottom:6px;letter-spacing:.05em;}
+.field input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 12px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s;}
+.field input:focus{border-color:var(--accent);}
+.hint{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;}
+.btn-fetch{background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:9px 24px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;height:38px;white-space:nowrap;}
+.btn-fetch:hover{background:var(--accent2);}
+.btn-fetch:disabled{background:var(--bg4);color:var(--text3);cursor:not-allowed;}
+.info-bar{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:16px;display:flex;gap:24px;font-size:12px;font-family:var(--mono);flex-wrap:wrap;}
+.info-item span:first-child{color:var(--text3);margin-right:6px;}
+.info-item span:last-child{color:var(--text);font-weight:500;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+.stat-label{font-size:10px;font-family:var(--mono);color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.stat-val{font-size:20px;font-weight:700;color:var(--text);}
+.stat-val.accent{color:var(--accent);}
+.stat-val.green{color:var(--green);}
+.stat-val.yellow{color:var(--yellow);}
+.stat-val.red{color:var(--red);}
+.table-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.table-toolbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px;background:var(--bg3);flex-wrap:wrap;}
+.search-input{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:7px 12px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;width:260px;}
+.search-input:focus{border-color:var(--accent);}
+.btn-export{background:transparent;border:1px solid var(--border2);border-radius:var(--radius);padding:7px 16px;color:var(--text2);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;}
+.btn-export:hover{border-color:var(--green);color:var(--green);}
+.table-scroll{overflow-x:auto;max-height:520px;overflow-y:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{background:var(--bg3);color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;cursor:pointer;user-select:none;white-space:nowrap;}
+thead th:hover{color:var(--text);}thead th.active{color:var(--accent);}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg3);}
+tr.low-stock td{background:rgba(239,68,68,0.05);}
+td.mono{font-family:var(--mono);font-size:11px;color:var(--text2);}
+td.right{text-align:right;font-family:var(--mono);}
+td.oh-ok{color:var(--green);font-weight:600;}
+td.oh-low{color:var(--yellow);font-weight:600;}
+td.oh-empty{color:var(--red);font-weight:600;}
+td.tag{font-family:var(--mono);font-size:11px;text-align:center;}
+.table-footer{padding:10px 16px;border-top:1px solid var(--border);font-size:11px;font-family:var(--mono);color:var(--text3);background:var(--bg3);display:flex;justify-content:space-between;}
+.state-box{padding:48px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:13px;}
+.state-box .icon{font-size:32px;margin-bottom:12px;}
+.state-error{color:var(--red);}
+.hidden{display:none!important;}
+@media(max-width:640px){
+  .form-row{grid-template-columns:1fr;}
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .table-toolbar{flex-direction:column;align-items:stretch;}
+  .search-input{width:100%;}
+}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <div class="logo-dot"></div>
+  <div>
+    <div class="logo-text">Planogram Viewer</div>
+    <div class="logo-sub">ALFAMART · PRODUCT INFO</div>
+  </div>
+</div>
+<div class="container">
+  <div class="form-card">
+    <div class="form-title">// Parameter Query</div>
+    <div class="form-row">
+      <div class="field">
+        <label>KODE TOKO</label>
+        <input type="text" id="storeId" value="N497" placeholder="contoh: N497">
+      </div>
+      <div class="field">
+        <label>NOMOR RAK</label>
+        <input type="text" id="rack" placeholder="contoh: AU1">
+        <div class="hint">* Contoh: AU1, AU2, LC2, 962</div>
+      </div>
+      <button class="btn-fetch" id="fetchBtn">Tampilkan</button>
+    </div>
+  </div>
+
+  <div id="infoBar" class="info-bar hidden"></div>
+
+  <div id="statsEl" class="stats hidden">
+    <div class="stat-card"><div class="stat-label">Store ID</div><div class="stat-val accent" id="s-store">-</div></div>
+    <div class="stat-card"><div class="stat-label">Total Item</div><div class="stat-val" id="s-total">-</div></div>
+    <div class="stat-card"><div class="stat-label">Total OH</div><div class="stat-val green" id="s-oh">-</div></div>
+    <div class="stat-card"><div class="stat-label">Item Kosong</div><div class="stat-val red" id="s-empty">-</div></div>
+  </div>
+
+  <div id="tableCard" class="table-card hidden">
+    <div class="table-toolbar">
+      <input type="text" class="search-input" id="search" placeholder="Cari PLU / nama barang...">
+      <button class="btn-export" id="exportBtn">Export Excel</button>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('plu')" id="th-plu">PLU</th>
+            <th onclick="sortBy('descp')" id="th-descp">Nama Barang</th>
+            <th onclick="sortBy('planogram')" id="th-planogram">Planogram</th>
+            <th onclick="sortBy('tag')" id="th-tag">Tag</th>
+            <th onclick="sortBy('onhand')" id="th-onhand" style="text-align:right">OH</th>
+            <th onclick="sortBy('retur_day')" id="th-retur_day" style="text-align:right">Retur Day</th>
+            <th onclick="sortBy('date_rec')" id="th-date_rec">Tgl Terima</th>
+            <th onclick="sortBy('lqty_rec')" id="th-lqty_rec" style="text-align:right">Lqty Rec</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      <span id="footerInfo">-</span>
+      <span id="footerOH">-</span>
+    </div>
+  </div>
+
+  <div id="stateBox" class="state-box">
+    <div class="icon">o</div>
+    <div>Masukkan kode toko dan nomor rak, lalu klik Tampilkan</div>
+  </div>
+</div>
+
+<script>
+var allData = [], sortKey = 'planogram', sortDir = 1;
+
+function setState(type, msg) {
+  var sb = document.getElementById('stateBox');
+  sb.classList.remove('hidden');
+  sb.className = 'state-box' + (type === 'error' ? ' state-error' : '');
+  sb.innerHTML = '<div class="icon">' + (type === 'loading' ? '...' : type === 'error' ? 'X' : 'o') + '</div><div>' + msg + '</div>';
+}
+function hideState() { document.getElementById('stateBox').classList.add('hidden'); }
+
+['storeId','rack'].forEach(function(id) {
+  document.getElementById(id).addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('fetchBtn').click();
+  });
+  document.getElementById(id).addEventListener('input', function() {
+    var pos = this.selectionStart;
+    this.value = this.value.toUpperCase();
+    this.setSelectionRange(pos, pos);
+  });
+});
+
+document.getElementById('fetchBtn').addEventListener('click', function() {
+  var storeId = document.getElementById('storeId').value.trim().toUpperCase();
+  var rack = document.getElementById('rack').value.trim().toUpperCase();
+  if (!storeId || !rack) { setState('error', 'Kode toko dan nomor rak wajib diisi!'); return; }
+
+  var btn = document.getElementById('fetchBtn');
+  btn.disabled = true; btn.textContent = 'Memuat...';
+  document.getElementById('statsEl').classList.add('hidden');
+  document.getElementById('tableCard').classList.add('hidden');
+  document.getElementById('infoBar').classList.add('hidden');
+  setState('loading', 'Mengambil data rak ' + rack + '...');
+
+  fetch('/proxy-rack-detail?storeId=' + encodeURIComponent(storeId) + '&rack=' + encodeURIComponent(rack))
+  .then(function(r) { if (!r.ok) throw new Error('Server error: ' + r.status); return r.json(); })
+  .then(function(json) {
+    var data = json.data || [];
+    if (!data.length) throw new Error('Data tidak ditemukan untuk rak ' + rack);
+
+    allData = data;
+    hideState();
+
+    var ib = document.getElementById('infoBar');
+    ib.classList.remove('hidden');
+    ib.innerHTML =
+      '<div class="info-item"><span>TOKO</span><span>' + storeId + '</span></div>' +
+      '<div class="info-item"><span>RAK</span><span>' + rack + '</span></div>';
+
+    var totalOH = 0, emptyCount = 0;
+    data.forEach(function(r) {
+      var oh = parseInt(r.onhand) || 0;
+      totalOH += oh;
+      if (oh === 0) emptyCount++;
+    });
+
+    document.getElementById('s-store').textContent = storeId;
+    document.getElementById('s-total').textContent = data.length;
+    document.getElementById('s-oh').textContent = totalOH;
+    document.getElementById('s-empty').textContent = emptyCount;
+    document.getElementById('statsEl').classList.remove('hidden');
+    document.getElementById('tableCard').classList.remove('hidden');
+    renderTable();
+  })
+  .catch(function(e) { setState('error', e.message); })
+  .finally(function() { btn.disabled = false; btn.textContent = 'Tampilkan'; });
+});
+
+function renderTable() {
+  var q = document.getElementById('search').value.toLowerCase();
+  var filtered = q ? allData.filter(function(r) {
+    return r.descp.toLowerCase().indexOf(q) > -1 || String(r.plu).indexOf(q) > -1;
+  }) : allData;
+
+  var sorted = filtered.slice().sort(function(a, b) {
+    var av = a[sortKey], bv = b[sortKey];
+    if (sortKey === 'onhand' || sortKey === 'lqty_rec') return sortDir * (parseInt(av||0) - parseInt(bv||0));
+    if (typeof av === 'string') return sortDir * av.localeCompare(bv);
+    return sortDir * (av - bv);
+  });
+
+  var tbody = document.getElementById('tbody');
+  if (!sorted.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:#555">Tidak ada data</td></tr>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < sorted.length; i++) {
+    var r = sorted[i];
+    var oh = parseInt(r.onhand) || 0;
+    var ohClass = oh === 0 ? 'oh-empty' : oh <= 5 ? 'oh-low' : 'oh-ok';
+    var rowClass = oh === 0 ? 'low-stock' : '';
+    html += '<tr class="' + rowClass + '">' +
+      '<td class="mono">' + r.plu + '</td>' +
+      '<td title="' + r.descp + '">' + r.descp + '</td>' +
+      '<td class="mono" style="font-size:10px" title="' + r.planogram + '">' + r.planogram + '</td>' +
+      '<td class="tag">' + (r.tag||'-') + '</td>' +
+      '<td class="right ' + ohClass + '">' + r.onhand + '</td>' +
+      '<td class="right">' + r.retur_day + '</td>' +
+      '<td class="mono">' + (r.date_rec||'-') + '</td>' +
+      '<td class="right">' + (r.lqty_rec||0) + '</td>' +
+    '</tr>';
+  }
+  tbody.innerHTML = html;
+
+  var totalOH = sorted.reduce(function(s,r) { return s + (parseInt(r.onhand)||0); }, 0);
+  document.getElementById('footerInfo').textContent = sorted.length + ' dari ' + allData.length + ' item';
+  document.getElementById('footerOH').textContent = 'Total OH: ' + totalOH;
+
+  ['plu','descp','planogram','tag','onhand','retur_day','date_rec','lqty_rec'].forEach(function(k) {
+    var el = document.getElementById('th-' + k);
+    if (el) el.className = k === sortKey ? 'active' : '';
+  });
+}
+
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  renderTable();
+}
+
+document.getElementById('search').addEventListener('input', renderTable);
+
+document.getElementById('exportBtn').addEventListener('click', function() {
+  if (!allData.length) return;
+  var storeId = document.getElementById('storeId').value.trim();
+  var rack = document.getElementById('rack').value.trim();
+  var ws = XLSX.utils.json_to_sheet(allData.map(function(r) {
+    return {
+      PLU: r.plu,
+      'Nama Barang': r.descp,
+      Planogram: r.planogram,
+      Tag: r.tag,
+      OH: r.onhand,
+      'Retur Day': r.retur_day,
+      'Tgl Terima': r.date_rec,
+      'Lqty Rec': r.lqty_rec
+    };
+  }));
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Planogram');
+  XLSX.writeFile(wb, 'Planogram_' + storeId + '_' + rack + '.xlsx');
+});
+</script>
+</body>
+</html>
