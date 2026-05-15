@@ -4,10 +4,13 @@ export default async function handler(req, res) {
 
   try {
 
-   const plusArray = String(plus)
-  .split(',')
-  .map(x => x.trim())
-  .filter(x => x);
+    const plusArray = String(plus)
+      .split(',')
+      .map(x => x.trim())
+      .filter(x => x);
+
+    let allData = [];
+
     for (const plu of plusArray) {
 
       try {
@@ -19,7 +22,6 @@ export default async function handler(req, res) {
 
         const data = await response.json();
 
-        // response array
         if (Array.isArray(data) && data.length > 0) {
 
           const item = data[0];
