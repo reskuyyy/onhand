@@ -9,30 +9,51 @@ export default async function handler(req, res) {
       .map(x => x.trim())
       .filter(x => x);
 
-    const debugData = [];
+    let allData = [];
 
     for (const plu of plusArray) {
 
-      const url =
-        `https://app.alfastore.co.id/prd/api/cex/get_product_detail/?storeId=${storeId}&plu=${plu}`;
+      try {
 
-      const response = await fetch(url);
+        const url =
+          `https://app.alfastore.co.id/prd/api/cex/get_product_detail/?storeId=${storeId}&plu=${plu}`;
 
-      const data = await response.json();
+        const response = await fetch(url);
 
-      debugData.push({
-        plu,
-        raw: data
-      });
+        const data = await response.json();
+
+        // response array
+        if (Array.isArray(data) && data.length > 0) {
+
+          const item = data[0];
+
+          allData.push({
+            barcode: item.barcode || '-',
+            plu: item.plu || '-',
+            nama: item.descp || '-',
+            on_hand: item.onhand || 0
+          });
+
+        }
+
+      } catch (e) {
+
+        console.log('gagal:', plu);
+
+      }
 
     }
 
-    res.status(200).json(debugData);
+    res.status(200).json({
+      status: true,
+      data: allData
+    });
 
   } catch (err) {
 
     res.status(500).json({
-      error: err.message
+      status: false,
+      message: err.message
     });
 
   }
