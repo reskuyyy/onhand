@@ -4,11 +4,12 @@ export default async function handler(req, res) {
 
   try {
 
-    const plusArray = String(plus)
-  .split(/[\n, ]+/)
+    const plusArray = decodeURIComponent(String(plus))
+  .replace(/\r/g, '')
+  .replace(/\n/g, ',')
+  .split(',')
   .map(x => x.trim())
   .filter(x => x);
-    let allData = [];
 
     for (const plu of plusArray) {
 
