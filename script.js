@@ -16,7 +16,9 @@ async function cekOnhand() {
   const plus = document
   .getElementById('pluInput')
   .value
-  .split(/[\r\n,\s]+/)
+  .replace(/\r/g, '')
+  .replace(/\n/g, ',')
+  .split(',')
   .map(x => x.trim())
   .filter(x => x);
   
