@@ -96,7 +96,15 @@ function renderTable(data) {
       <td>${item.barcode}</td>
       <td>${item.plu}</td>
       <td>${item.nama}</td>
-      <td>${item.on_hand}</td>
+      <td>
+  <span class="badge ${
+    Number(item.on_hand) > 0
+      ? 'badge-good'
+      : 'badge-empty'
+  }">
+    ${item.on_hand}
+  </span>
+</td>
     `;
 
     tableBody.appendChild(row);
