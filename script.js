@@ -146,3 +146,20 @@ function setPLU(data){
   document.getElementById('pluInput').value = data;
 
 }
+const PLU_979 = [
+  1595,5330,5867,113079,118898,120333,120766,120767,
+  192730,196009,230169,230170,244111,400552,401181,
+  401698,406643,413095,414212,414633,415196,417804,
+  417805,421454,421456,423992,425651,432393,435578,
+  435736,440715,441258,443194,443704,445037,465695,
+  465771,990055
+];
+
+document
+  .getElementById('btn979')
+  .addEventListener('click', () => {
+
+    document.getElementById('pluInput').value =
+      PLU_979.join(',');
+
+});
