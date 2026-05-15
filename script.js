@@ -141,3 +141,8 @@ searchInput.addEventListener('input', () => {
 });
 
 cekBtn.addEventListener('click', cekOnhand);
+function setPLU(data){
+
+  document.getElementById('pluInput').value = data;
+
+}
