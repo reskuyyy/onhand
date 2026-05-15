@@ -13,13 +13,12 @@ async function cekOnhand() {
     .trim()
     .toUpperCase();
 
-  const plus = document
+  const rawInput = document
   .getElementById('pluInput')
-  .value
-  .replace(/\r/g, '')
-  .replace(/\n/g, ',')
-  .replace(/\s+/g, ',')
-  .split(',')
+  .value;
+
+const plus = rawInput
+  .split(/[\n,]+/)
   .map(x => x.trim())
   .filter(x => x);
   
