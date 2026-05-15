@@ -1,15 +1,33 @@
+const cekBtn = document.getElementById('cekBtn');
 const tableBody = document.getElementById('tableBody');
-const searchInput = document.getElementById('searchInput');
-const loadBtn = document.getElementById('loadBtn');
 const info = document.getElementById('info');
+const searchInput = document.getElementById('searchInput');
 
 let originalData = [];
 
-async function loadData() {
-  const storeId = document.getElementById('storeInput').value.trim();
+async function cekOnhand() {
 
-  if (!storeId) {
+  const store = document
+    .getElementById('storeInput')
+    .value
+    .trim()
+    .toUpperCase();
+
+  const plus = document
+    .getElementById('pluInput')
+    .value
+    .replace(/\n/g, ',')
+    .split(',')
+    .map(x => x.trim())
+    .filter(x => x);
+
+  if (!store) {
     alert('Store ID wajib diisi');
+    return;
+  }
+
+  if (!plus.length) {
+    alert('PLU wajib diisi');
     return;
   }
 
@@ -18,30 +36,41 @@ async function loadData() {
 
   try {
 
-    // langsung ke proxy vercel
-    const response = await fetch(`/api/data?storeId=${storeId}`);
+    const BATCH_SIZE = 40;
 
-    if (!response.ok) {
-      throw new Error('Gagal ambil data');
+    let allData = [];
+
+    for (let i = 0; i < plus.length; i += BATCH_SIZE) {
+
+      const batch = plus.slice(i, i + BATCH_SIZE);
+
+      const res = await fetch(
+        `/api/onhand?storeId=${store}&plus=${batch.join(',')}`
+      );
+
+      const result = await res.json();
+
+      if (result.data) {
+        allData = allData.concat(result.data);
+      }
+
     }
 
-    const result = await response.json();
-
-    console.log(result);
-
-    // ambil array dari response
-  const data = result || [];
-
-    originalData = Array.isArray(data) ? data : [];
+    originalData = allData;
 
     renderTable(originalData);
 
-    info.innerHTML = `Total Data: ${originalData.length}`;
+    info.innerHTML =
+      `Total Data: ${originalData.length}`;
 
   } catch (err) {
+
     console.error(err);
+
     info.innerHTML = err.message;
+
   }
+
 }
 
 function renderTable(data) {
@@ -63,38 +92,42 @@ function renderTable(data) {
 
     const row = document.createElement('tr');
 
-   row.innerHTML = `
-  <td>${item.barcode || '-'}</td>
-  <td>${item.plu || '-'}</td>
-  <td>${item.descp || '-'}</td>
-  <td>${item.onhand || 0}</td>
-  <td>${item.rack || '-'}</td>
-`;
+    row.innerHTML = `
+      <td>${item.barcode}</td>
+      <td>${item.plu}</td>
+      <td>${item.nama}</td>
+      <td>${item.on_hand}</td>
+    `;
 
     tableBody.appendChild(row);
+
   });
+
 }
 
 searchInput.addEventListener('input', () => {
 
-  const keyword = searchInput.value.toLowerCase();
+  const keyword =
+    searchInput.value.toLowerCase();
 
   const filtered = originalData.filter(item => {
 
-    const barcode = String(item.barcode || '').toLowerCase();
-    const plu = String(item.plu || '').toLowerCase();
-
     return (
-      barcode.includes(keyword) ||
-      plu.includes(keyword)
+      String(item.plu)
+        .toLowerCase()
+        .includes(keyword)
+
+      ||
+
+      String(item.nama)
+        .toLowerCase()
+        .includes(keyword)
     );
+
   });
 
   renderTable(filtered);
 
-  info.innerHTML = `Hasil: ${filtered.length}`;
 });
 
-loadBtn.addEventListener('click', loadData);
-
-loadData();
+cekBtn.addEventListener('click', cekOnhand);
