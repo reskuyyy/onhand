@@ -17,8 +17,15 @@ async function cekOnhand() {
   .getElementById('pluInput')
   .value;
 
+const rawInput = document
+  .getElementById('pluInput')
+  .value;
+
 const plus = rawInput
-  .split(/[\n,]+/)
+  .replace(/\r/g, '')
+  .replace(/\n/g, ',')
+  .replace(/ /g, ',')
+  .split(',')
   .map(x => x.trim())
   .filter(x => x);
   
