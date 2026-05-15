@@ -3,7 +3,7 @@ const tableBody = document.getElementById('tableBody');
   tableBody.innerHTML = '';
 
   try {
-    const apiUrl = `https://app.alfastore.co.id/prd/api/cex/item_by_rak/?storeId=${storeId}&rack=${rack}`;
+   const apiUrl = `/api/data?storeId=${storeId}&rack=${rack}`;
 
     const response = await fetch(apiUrl);
 
