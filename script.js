@@ -49,11 +49,13 @@ function renderTable(data) {
   tableBody.innerHTML = '';
 
   if (!data.length) {
+
     tableBody.innerHTML = `
       <tr>
-        <td colspan="3">Tidak ada data</td>
+        <td colspan="4">Tidak ada data</td>
       </tr>
     `;
+
     return;
   }
 
@@ -64,6 +66,7 @@ function renderTable(data) {
     row.innerHTML = `
       <td>${item.barcode || '-'}</td>
       <td>${item.plu || '-'}</td>
+      <td>${item.descp || '-'}</td>
       <td>${item.onhand || 0}</td>
     `;
 
