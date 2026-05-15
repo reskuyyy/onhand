@@ -1,21 +1,214 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cek Onhand</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Onhand Checker</title>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      background:
+        linear-gradient(135deg,#0f172a,#1e293b);
+      min-height:100vh;
+      padding:30px 15px;
+      color:white;
+    }
+
+    .container{
+      max-width:1200px;
+      margin:auto;
+      background:rgba(255,255,255,0.08);
+      backdrop-filter:blur(14px);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:28px;
+      padding:25px;
+      box-shadow:
+        0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    h1{
+      font-size:32px;
+      margin-bottom:10px;
+    }
+
+    .subtitle{
+      color:#cbd5e1;
+      margin-bottom:25px;
+    }
+
+    input,
+    textarea{
+      width:100%;
+      padding:14px 16px;
+      border:none;
+      border-radius:18px;
+      background:rgba(255,255,255,0.08);
+      color:white;
+      margin-bottom:15px;
+      outline:none;
+      border:1px solid rgba(255,255,255,0.08);
+    }
+
+    input::placeholder,
+    textarea::placeholder{
+      color:#cbd5e1;
+    }
+
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    button{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:18px;
+      background:linear-gradient(
+        135deg,
+        #3b82f6,
+        #2563eb
+      );
+      color:white;
+      font-weight:bold;
+      font-size:15px;
+      cursor:pointer;
+      transition:0.2s;
+      margin-bottom:18px;
+    }
+
+    button:hover{
+      transform:translateY(-2px);
+      opacity:0.95;
+    }
+
+    #info{
+      margin-bottom:15px;
+      color:#cbd5e1;
+      font-size:14px;
+    }
+
+    .table-wrapper{
+      overflow:auto;
+      border-radius:20px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      overflow:hidden;
+    }
+
+    thead{
+      background:rgba(255,255,255,0.1);
+    }
+
+    th{
+      padding:16px;
+      text-align:left;
+      font-size:14px;
+      color:#e2e8f0;
+    }
+
+    td{
+      padding:16px;
+      border-top:1px solid rgba(255,255,255,0.05);
+      font-size:14px;
+    }
+
+    tbody tr{
+      transition:0.2s;
+    }
+
+    tbody tr:hover{
+      background:rgba(255,255,255,0.05);
+    }
+
+    .badge{
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:bold;
+      display:inline-block;
+    }
+
+    .badge-good{
+      background:#16a34a33;
+      color:#4ade80;
+    }
+
+    .badge-empty{
+      background:#dc262633;
+      color:#f87171;
+    }
+
+    .search-box{
+      position:relative;
+    }
+
+    .search-box input{
+      padding-left:45px;
+    }
+
+    .search-icon{
+      position:absolute;
+      left:15px;
+      top:14px;
+      opacity:0.7;
+    }
+
+    .alert{
+      background:#f59e0b22;
+      border:1px solid #f59e0b55;
+      color:#fde68a;
+      padding:14px;
+      border-radius:18px;
+      margin-bottom:20px;
+      line-height:1.5;
+    }
+
+    @media(max-width:768px){
+
+      h1{
+        font-size:24px;
+      }
+
+      th,td{
+        padding:12px;
+        font-size:13px;
+      }
+
+    }
+
+  </style>
+
 </head>
 <body>
 
 <div class="container">
 
-  <h1>Cek Onhand</h1>
+  <h1>📦 Onhand Checker</h1>
+
+  <p class="subtitle">
+    Cek stok barang realtime berdasarkan PLU
+  </p>
+
+  <div class="alert">
+    ⚠️ Pastikan koneksi stabil saat mengambil data dari API.
+  </div>
 
   <input
     type="text"
     id="storeInput"
-    placeholder="Store ID"
+    placeholder="Masukkan Store ID"
     value="N497"
   >
 
@@ -25,32 +218,195 @@
   ></textarea>
 
   <button id="cekBtn">
-    Cek Onhand
+    🔍 Cek Onhand
   </button>
 
-  <input
-    type="text"
-    id="searchInput"
-    placeholder="Cari PLU / Nama Barang"
-  >
+  <div class="search-box">
+
+    <span class="search-icon">🔎</span>
+
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Cari PLU atau nama barang..."
+    >
+
+  </div>
 
   <div id="info"></div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Barcode</th>
-        <th>PLU</th>
-        <th>Nama Barang</th>
-        <th>Onhand</th>
-      </tr>
-    </thead>
+  <div class="table-wrapper">
 
-    <tbody id="tableBody"></tbody>
-  </table>
+    <table>
+
+      <thead>
+        <tr>
+          <th>Barcode</th>
+          <th>PLU</th>
+          <th>Nama Barang</th>
+          <th>Onhand</th>
+        </tr>
+      </thead>
+
+      <tbody id="tableBody"></tbody>
+
+    </table>
+
+  </div>
 
 </div>
 
-<script src="script.js"></script>
+<script>
+
+const cekBtn = document.getElementById('cekBtn');
+const tableBody = document.getElementById('tableBody');
+const info = document.getElementById('info');
+const searchInput = document.getElementById('searchInput');
+
+let originalData = [];
+
+async function cekOnhand() {
+
+  const store = document
+    .getElementById('storeInput')
+    .value
+    .trim()
+    .toUpperCase();
+
+  const plus = document
+    .getElementById('pluInput')
+    .value
+    .replace(/\\n/g, ',')
+    .split(',')
+    .map(x => x.trim())
+    .filter(x => x);
+
+  if (!store) {
+    alert('Store ID wajib diisi');
+    return;
+  }
+
+  if (!plus.length) {
+    alert('PLU wajib diisi');
+    return;
+  }
+
+  info.innerHTML = '⏳ Loading data...';
+  tableBody.innerHTML = '';
+
+  try {
+
+    const BATCH_SIZE = 40;
+
+    let allData = [];
+
+    for (let i = 0; i < plus.length; i += BATCH_SIZE) {
+
+      const batch = plus.slice(i, i + BATCH_SIZE);
+
+      const res = await fetch(
+        `/api/onhand?storeId=${store}&plus=${batch.join(',')}`
+      );
+
+      const result = await res.json();
+
+      if (result.data) {
+        allData = allData.concat(result.data);
+      }
+
+    }
+
+    originalData = allData;
+
+    renderTable(originalData);
+
+    info.innerHTML =
+      `✅ Total Data: ${originalData.length}`;
+
+  } catch (err) {
+
+    console.error(err);
+
+    info.innerHTML =
+      '❌ Gagal mengambil data';
+
+  }
+
+}
+
+function renderTable(data) {
+
+  tableBody.innerHTML = '';
+
+  if (!data.length) {
+
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="4">
+          Tidak ada data
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  data.forEach(item => {
+
+    const row = document.createElement('tr');
+
+    row.innerHTML = `
+      <td>${item.barcode}</td>
+
+      <td>${item.plu}</td>
+
+      <td>${item.nama}</td>
+
+      <td>
+        <span class="badge ${
+          Number(item.on_hand) > 0
+            ? 'badge-good'
+            : 'badge-empty'
+        }">
+          ${item.on_hand}
+        </span>
+      </td>
+    `;
+
+    tableBody.appendChild(row);
+
+  });
+
+}
+
+searchInput.addEventListener('input', () => {
+
+  const keyword =
+    searchInput.value.toLowerCase();
+
+  const filtered = originalData.filter(item => {
+
+    return (
+      String(item.plu)
+        .toLowerCase()
+        .includes(keyword)
+
+      ||
+
+      String(item.nama)
+        .toLowerCase()
+        .includes(keyword)
+    );
+
+  });
+
+  renderTable(filtered);
+
+});
+
+cekBtn.addEventListener('click', cekOnhand);
+
+</script>
+
 </body>
 </html>
