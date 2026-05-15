@@ -1,45 +1,56 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rack Lookup</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cek Onhand</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="container">
-    <h1>Rack Lookup</h1>
+<div class="container">
 
-    <div class="controls">
-      <input type="text" id="storeInput" placeholder="Store ID (contoh: N497)" value="N497" />
+  <h1>Cek Onhand</h1>
 
- 
-      <button id="loadBtn">Load Data</button>
-    </div>
+  <input
+    type="text"
+    id="storeInput"
+    placeholder="Store ID"
+    value="N497"
+  >
 
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Cari barcode atau PLU..." />
-    </div>
+  <textarea
+    id="pluInput"
+    placeholder="Masukkan PLU dipisah koma atau enter"
+  ></textarea>
 
-    <div class="info" id="info"></div>
+  <button id="cekBtn">
+    Cek Onhand
+  </button>
 
-    <div class="table-wrapper">
-      <table>
-     <thead>
-  <tr>
-    <th>Barcode</th>
-    <th>PLU</th>
-    <th>Deskripsi</th>
-    <th>Onhand</th>
-    <th>Rack</th>
-  </tr>
-</thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-  </div>
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Cari PLU / Nama Barang"
+  >
 
-  <script src="script.js"></script>
+  <div id="info"></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Barcode</th>
+        <th>PLU</th>
+        <th>Nama Barang</th>
+        <th>Onhand</th>
+      </tr>
+    </thead>
+
+    <tbody id="tableBody"></tbody>
+  </table>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
