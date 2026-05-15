@@ -18,6 +18,7 @@ async function cekOnhand() {
   .value
   .replace(/\r/g, '')
   .replace(/\n/g, ',')
+  .replace(/\s+/g, ',')
   .split(',')
   .map(x => x.trim())
   .filter(x => x);
