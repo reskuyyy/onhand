@@ -81,7 +81,9 @@ function renderTable(data) {
 
     tableBody.innerHTML = `
       <tr>
-        <td colspan="4">Tidak ada data</td>
+        <td colspan="4">
+          Tidak ada data
+        </td>
       </tr>
     `;
 
@@ -92,20 +94,21 @@ function renderTable(data) {
 
     const row = document.createElement('tr');
 
-  row.innerHTML = `
-  <td>${item.barcode}</td>
-  <td>${item.plu}</td>
-  <td>${item.nama}</td>
-  <td>
-    <span class="${
+    const badgeClass =
       Number(item.on_hand) > 0
         ? 'badge badge-good'
-        : 'badge badge-empty'
-    }">
-      ${item.on_hand}
-    </span>
-  </td>
-`;
+        : 'badge badge-empty';
+
+    row.innerHTML = `
+      <td>${item.barcode}</td>
+      <td>${item.plu}</td>
+      <td>${item.nama}</td>
+      <td>
+        <span class="${badgeClass}">
+          ${item.on_hand}
+        </span>
+      </td>
+    `;
 
     tableBody.appendChild(row);
 
