@@ -1,17 +1,36 @@
 const tableBody = document.getElementById('tableBody');
-  info.innerHTML = '<span class="loading">Loading data...</span>';
+const searchInput = document.getElementById('searchInput');
+const loadBtn = document.getElementById('loadBtn');
+const info = document.getElementById('info');
+
+let originalData = [];
+
+async function loadData() {
+  const storeId = document.getElementById('storeInput').value.trim();
+
+  if (!storeId) {
+    alert('Store ID wajib diisi');
+    return;
+  }
+
+  info.innerHTML = 'Loading...';
   tableBody.innerHTML = '';
 
   try {
-   const apiUrl = `/api/data?storeId=${storeId}&rack=${rack}`;
 
-    const response = await fetch(apiUrl);
+    // langsung ke proxy vercel
+    const response = await fetch(`/api/data?storeId=${storeId}`);
 
     if (!response.ok) {
-      throw new Error('Gagal mengambil data');
+      throw new Error('Gagal ambil data');
     }
 
-    const data = await response.json();
+    const result = await response.json();
+
+    console.log(result);
+
+    // ambil array dari response
+    const data = result.data || result || [];
 
     originalData = Array.isArray(data) ? data : [];
 
@@ -19,13 +38,14 @@ const tableBody = document.getElementById('tableBody');
 
     info.innerHTML = `Total Data: ${originalData.length}`;
 
-  } catch (error) {
-    console.error(error);
-    info.innerHTML = `<span class="error">${error.message}</span>`;
+  } catch (err) {
+    console.error(err);
+    info.innerHTML = err.message;
   }
 }
 
 function renderTable(data) {
+
   tableBody.innerHTML = '';
 
   if (!data.length) {
@@ -38,6 +58,7 @@ function renderTable(data) {
   }
 
   data.forEach(item => {
+
     const row = document.createElement('tr');
 
     row.innerHTML = `
@@ -51,18 +72,23 @@ function renderTable(data) {
 }
 
 searchInput.addEventListener('input', () => {
-  const keyword = searchInput.value.toLowerCase().trim();
+
+  const keyword = searchInput.value.toLowerCase();
 
   const filtered = originalData.filter(item => {
+
     const barcode = String(item.barcode || '').toLowerCase();
     const plu = String(item.plu || '').toLowerCase();
 
-    return barcode.includes(keyword) || plu.includes(keyword);
+    return (
+      barcode.includes(keyword) ||
+      plu.includes(keyword)
+    );
   });
 
   renderTable(filtered);
 
-  info.innerHTML = `Hasil Filter: ${filtered.length}`;
+  info.innerHTML = `Hasil: ${filtered.length}`;
 });
 
 loadBtn.addEventListener('click', loadData);
