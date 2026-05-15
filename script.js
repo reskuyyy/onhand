@@ -17,10 +17,6 @@ async function cekOnhand() {
   .getElementById('pluInput')
   .value;
 
-const rawInput = document
-  .getElementById('pluInput')
-  .value;
-
 const plus = rawInput
   .replace(/\r/g, '')
   .replace(/\n/g, ',')
