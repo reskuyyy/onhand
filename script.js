@@ -16,10 +16,10 @@ async function cekOnhand() {
   const plus = document
   .getElementById('pluInput')
   .value
-  .split(/[\n, ]+/)
+  .split(/[\r\n,\s]+/)
   .map(x => x.trim())
   .filter(x => x);
-
+  
   if (!store) {
     alert('Store ID wajib diisi');
     return;
