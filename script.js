@@ -14,12 +14,11 @@ async function cekOnhand() {
     .toUpperCase();
 
   const plus = document
-    .getElementById('pluInput')
-    .value
-    .replace(/\n/g, ',')
-    .split(',')
-    .map(x => x.trim())
-    .filter(x => x);
+  .getElementById('pluInput')
+  .value
+  .split(/[\n, ]+/)
+  .map(x => x.trim())
+  .filter(x => x);
 
   if (!store) {
     alert('Store ID wajib diisi');
