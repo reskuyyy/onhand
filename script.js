@@ -92,20 +92,20 @@ function renderTable(data) {
 
     const row = document.createElement('tr');
 
-    row.innerHTML = `
-      <td>${item.barcode}</td>
-      <td>${item.plu}</td>
-      <td>${item.nama}</td>
-      <td>
-  <span class="badge ${
-    Number(item.on_hand) > 0
-      ? 'badge-good'
-      : 'badge-empty'
-  }">
-    ${item.on_hand}
-  </span>
-</td>
-    `;
+  row.innerHTML = `
+  <td>${item.barcode}</td>
+  <td>${item.plu}</td>
+  <td>${item.nama}</td>
+  <td>
+    <span class="${
+      Number(item.on_hand) > 0
+        ? 'badge badge-good'
+        : 'badge badge-empty'
+    }">
+      ${item.on_hand}
+    </span>
+  </td>
+`;
 
     tableBody.appendChild(row);
 
